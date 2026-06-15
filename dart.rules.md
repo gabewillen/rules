@@ -1,59 +1,42 @@
 # Dart & Flutter Engineering Rules
 
-## 1. Toolchain & Quality Gates
-- **Dart 3.x Only:** Enforce sound null safety (`^3.6.0`+). No opt-outs.
-- **Strict Analysis:** Enable `strict-casts`, `strict-inference`, and `strict-raw-types`. Use `package:lints` or `package:flutter_lints`.
-- **CI Requirements:** Fail on unformatted code (`dart format -o none --set-exit-if-changed`), analyzer warnings (`--fatal-infos`), and test failures.
-- **Pub Management:** Use `dart pub add` and caret (`^`) constraints. Commit `pubspec.lock` for apps, ignore for packages. Support `resolution: workspace` for monorepos. Remove `dependency_overrides` before release.
-
-## 2. Types & Null Safety
-- **No `dynamic`:** Ban `dynamic` in public APIs. Use `Object?` and type-narrow, or sealed classes.
-- **Typed Collections:** Ban raw `List`/`Map`/`Set`. Always specify generic types.
-- **Safe Downcasting:** Ban unchecked `as T`. Use explicit `is` checks or pattern matching.
-- **Strict `late`:** Use `late` only for deferred initialization where you guarantee assignment before read.
-- **Immutable by Default:** Prefer `final` for locals and fields. Tightly scope any mutable state.
-- **Optionals over Sentinels:** Model absent values strictly with `T?`, not magic sentinel values.
-
-## 3. Architecture & API Design
-- **Encapsulation:** Treat `lib/src/` as strictly private. Export public APIs solely from `lib/`. Never import another package's `lib/src/`.
-- **Class Modifiers:** Use `sealed`, `base`, `interface`, and `final` to explicitly control subclassing and implementation.
-- **Single Entrypoint:** Prefer a single primary library export (e.g., `lib/your_pkg.dart`).
-- **Doc Comments:** Document all public symbols with `///`, starting with a single-sentence summary.
-- **Privacy:** Prefix private file-level or class-level members with an underscore `_`.
-- **Deprecations:** Annotate deprecated APIs with `@Deprecated` and a migration hint.
-
-## 4. Error Handling
-- **Exceptions vs. Errors:** Throw `Exception` for recoverable failures; `Error` for programmer defects. Never catch `Error` except at top-level process boundaries.
-- **Preserve Stack Traces:** Always capture the trace (`catch (e, st)`) and use `rethrow` to bubble up without dropping context.
-- **Do Not Swallow Exceptions:** Never fail silently. Add explicit comments if an exception is intentionally ignored.
-- **Consistent Boundaries:** Return a typed Result object or throw Exceptions. Do not mix both strategies in the same layer.
-- **Top-Level Async Errors:** Wrap server/CLI `main` in `runZonedGuarded` to catch unhandled async errors.
-
-## 5. Async & Concurrency
-- **Handle All Futures:** Await, return, or explicitly ignore every `Future` (enforce `unawaited_futures`).
-- **Isolate CPU-Bound Work:** Move heavy processing (JSON, images) to Isolates (`Isolate.run()` or `compute()`). Never block the event loop.
-- **Resource Cleanup:** Explicitly `cancel()` StreamSubscriptions and `close()` Sinks/Controllers. Do not rely on finalizers for deterministic cleanup.
-- **Avoid `async void`:** Return `Future<void>` so callers can await or handle errors, unless constrained by framework event handlers.
-- **No Unnecessary Async:** If a function does not `await`, do not mark it `async`. Return the `Future` directly.
-
-## 6. Memory & Performance
-- **String Building:** Use `StringBuffer` instead of `+` concatenation inside loops.
-- **Const Instantiation:** Maximize use of `const` constructors and literals to reduce allocations.
-- **Preallocate Collections:** Use `List.filled` or `List.generate` when the final size is known.
-- **Cache Expensive Objects:** Avoid per-call allocations for heavy objects like `RegExp` or `DateFormat`. Cache them in static/final fields.
-
-## 7. Data & Serialization
-- **Zero-Trust Boundaries:** Validate all external input (JSON, network, platform channels) immediately at the edge. Never log sensitive data or hardcode secrets.
-- **Typed Deserialization:** Convert dynamic JSON maps into strongly-typed domain models using `dart:convert`. Never leak `Map<String, dynamic>` into core business logic.
-- **Code Generation:** Use schema-driven generation (e.g., `json_serializable`) for complex or long-lived API models.
-
-## 8. Interop & Platform Channels
-- **Adapter Boundaries:** Isolate FFI, JS Interop, and Platform Channels behind strict, testable adapter layers.
-- **No Leaky Abstractions:** Never expose native/JS types in Dart APIs.
-- **Modern Web/Native Tooling:** Use `package:web` for JS interop and `ffigen` for native bindings. Avoid handwritten FFI at scale.
-- **Type-Safe Channels:** Use versioned, typed messages for Flutter platform channels. Prefer Pigeon over untyped standard method channels.
-
-## 9. Testing
-- **Determinism:** Fake/mock external I/O (network, filesystem, databases). Avoid flaky time-based assertions; use fake async or controlled clocks.
-- **Right-Sizing:** Map unit tests to pure logic, widget tests to UI components, and integration tests to complete user flows.
-- **Regression Guarding:** Every bug fix must include a targeted regression test.
+- DART-001: MUST enforce sound null safety with Dart 3.x (`^3.6.0`+). No opt-outs.
+- DART-002: MUST enable `strict-casts`, `strict-inference`, and `strict-raw-types`. Use `package:lints` or `package:flutter_lints`.
+- DART-003: MUST fail CI on unformatted code (`dart format -o none --set-exit-if-changed`), analyzer warnings (`--fatal-infos`), and test failures.
+- DART-004: MUST use `dart pub add` and caret (`^`) constraints. Commit `pubspec.lock` for apps, ignore for packages. Support `resolution: workspace` for monorepos. Remove `dependency_overrides` before release.
+- DART-005: MUST ban `dynamic` in public APIs. Use `Object?` and type-narrow, or sealed classes.
+- DART-006: MUST ban raw `List`/`Map`/`Set`. Always specify generic types.
+- DART-007: MUST ban unchecked `as T`. Use explicit `is` checks or pattern matching.
+- DART-008: MUST use `late` only for deferred initialization where you guarantee assignment before read.
+- DART-009: MUST prefer `final` for locals and fields. Tightly scope any mutable state.
+- DART-010: MUST model absent values strictly with `T?`, not magic sentinel values.
+- DART-011: MUST treat `lib/src/` as strictly private. Export public APIs solely from `lib/`. Never import another package's `lib/src/`.
+- DART-012: MUST use `sealed`, `base`, `interface`, and `final` to explicitly control subclassing and implementation.
+- DART-013: MUST prefer a single primary library export (e.g., `lib/your_pkg.dart`).
+- DART-014: MUST document all public symbols with `///`, starting with a single-sentence summary.
+- DART-015: MUST prefix private file-level or class-level members with an underscore `_`.
+- DART-016: MUST annotate deprecated APIs with `@Deprecated` and a migration hint.
+- DART-017: MUST throw `Exception` for recoverable failures; `Error` for programmer defects. Never catch `Error` except at top-level process boundaries.
+- DART-018: MUST always capture the trace (`catch (e, st)`) and use `rethrow` to bubble up without dropping context.
+- DART-019: MUST never fail silently. Add explicit comments if an exception is intentionally ignored.
+- DART-020: MUST return a typed Result object or throw Exceptions at consistent boundaries. Do not mix both strategies in the same layer.
+- DART-021: MUST wrap server/CLI `main` in `runZonedGuarded` to catch unhandled async errors.
+- DART-022: MUST await, return, or explicitly ignore every `Future` (enforce `unawaited_futures`).
+- DART-023: MUST move heavy processing (JSON, images) to Isolates (`Isolate.run()` or `compute()`). Never block the event loop.
+- DART-024: MUST explicitly `cancel()` StreamSubscriptions and `close()` Sinks/Controllers. Do not rely on finalizers for deterministic cleanup.
+- DART-025: MUST return `Future<void>` so callers can await or handle errors, unless constrained by framework event handlers. Avoid `async void`.
+- DART-026: MUST NOT mark a function `async` if it does not `await`. Return the `Future` directly.
+- DART-027: MUST use `StringBuffer` instead of `+` concatenation inside loops.
+- DART-028: MUST maximize use of `const` constructors and literals to reduce allocations.
+- DART-029: MUST use `List.filled` or `List.generate` when the final size is known.
+- DART-030: MUST avoid per-call allocations for heavy objects like `RegExp` or `DateFormat`. Cache them in static/final fields.
+- DART-031: MUST validate all external input (JSON, network, platform channels) immediately at the edge. Never log sensitive data or hardcode secrets.
+- DART-032: MUST convert dynamic JSON maps into strongly-typed domain models using `dart:convert`. Never leak `Map<String, dynamic>` into core business logic.
+- DART-033: MUST use schema-driven generation (e.g., `json_serializable`) for complex or long-lived API models.
+- DART-034: MUST isolate FFI, JS Interop, and Platform Channels behind strict, testable adapter layers.
+- DART-035: MUST never expose native/JS types in Dart APIs.
+- DART-036: MUST use `package:web` for JS interop and `ffigen` for native bindings. Avoid handwritten FFI at scale.
+- DART-037: MUST use versioned, typed messages for Flutter platform channels. Prefer Pigeon over untyped standard method channels.
+- DART-038: MUST fake/mock external I/O (network, filesystem, databases) for determinism. Avoid flaky time-based assertions; use fake async or controlled clocks.
+- DART-039: MUST map unit tests to pure logic, widget tests to UI components, and integration tests to complete user flows.
+- DART-040: MUST include a targeted regression test for every bug fix.

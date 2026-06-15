@@ -1,36 +1,25 @@
 # Pulumi Go Rules
 
-## 1. Project & Stack Architecture
-- **Boundaries**: 1 Project = Deployment boundary. 1 Stack = Environment boundary (`dev`, `staging`, `prod`).
-- **Structure**: Keep `Pulumi.yaml`, `go.mod`, and `main.go` at the project root.
-- **Composition**: Use `main.go` strictly for composition. Move reusable infrastructure logic into internal Go packages.
-- **Scaling**: Split monolithic projects by layer or owner; connect them using stack references.
-- **Metadata**: Add stack tags for grouping (`environment`, `service`, `owner`).
-
-## 2. Resource Management
-- **Naming**: Rely on default auto-naming. If custom names are required, include randomness to prevent collisions during replacements.
-- **Refactoring**: **Never rename logical resources blindly**, as it forces a delete-and-replace. Use resource `aliases` to migrate state during renames, moves, or reparenting.
-- **Providers**: Use default providers for single-account/region setups. Pass explicit `provider` options for multi-account/region deployments within a single stack.
-
-## 3. Configuration & Secrets
-- **CLI Only**: Use `pulumi config set` (with `--secret` for sensitive data). Never hand-edit `Pulumi.<stack>.yaml`.
-- **Code Integration**: Always read sensitive values using `RequireSecret` in Go.
-- **State Files**: Track shared environment configuration (`Pulumi.<stack>.yaml`) in version control.
-- **External Stores**: Use Pulumi ESC, KMS, or Vault for managing team/production secrets.
-
-## 4. Dependencies & Versioning
-- **Pinning**: Explicitly pin the Pulumi CLI (`requiredPulumiVersion`) and provider versions (`packages` map) in `Pulumi.yaml`.
-- **Local SDKs**: Version-control locally generated SDK artifacts (under `sdks/`) when used by the program.
-- **Syncing**: Always run `pulumi install` after package updates or cloning.
-
-## 5. CI/CD & Operations
-- **Pipelines**: PRs must run `pulumi preview`. Merges to protected branches run `pulumi up`.
-- **Determinism**: Use update plans (`--save-plan` and `--plan`) for strict change control.
-- **Auth**: Authenticate clouds via OIDC. Avoid long-lived static credentials.
-- **Drift**: Detect drift regularly with `pulumi refresh --preview-only`. Treat drift as a production incident.
-- **GitHub Actions**: Prefer `pulumi/actions` over the deprecated `setup-pulumi`.
-
-## 6. Testing & Governance
-- **Unit Tests**: Use `go test` with Pulumi mocks to validate transformation and business logic.
-- **Integration Tests**: Use `integration.ProgramTest` for full lifecycle validation and post-deploy assertions.
-- **Policy**: Enforce policy checks on local and CI previews before merging using pre-built and custom policy packs.
+- PULUMI-001: MUST treat 1 Project as the deployment boundary and 1 Stack as the environment boundary (`dev`, `staging`, `prod`).
+- PULUMI-002: MUST keep `Pulumi.yaml`, `go.mod`, and `main.go` at the project root.
+- PULUMI-003: MUST use `main.go` strictly for composition. Move reusable infrastructure logic into internal Go packages.
+- PULUMI-004: MUST split monolithic projects by layer or owner; connect them using stack references.
+- PULUMI-005: MUST add stack tags for grouping (`environment`, `service`, `owner`).
+- PULUMI-006: MUST rely on default auto-naming. If custom names are required, include randomness to prevent collisions during replacements.
+- PULUMI-007: MUST NEVER rename logical resources blindly, as it forces a delete-and-replace. Use resource `aliases` to migrate state during renames, moves, or reparenting.
+- PULUMI-008: MUST use default providers for single-account/region setups. Pass explicit `provider` options for multi-account/region deployments within a single stack.
+- PULUMI-009: MUST use `pulumi config set` (with `--secret` for sensitive data). Never hand-edit `Pulumi.<stack>.yaml`.
+- PULUMI-010: MUST always read sensitive values using `RequireSecret` in Go.
+- PULUMI-011: MUST track shared environment configuration (`Pulumi.<stack>.yaml`) in version control.
+- PULUMI-012: MUST use Pulumi ESC, KMS, or Vault for managing team/production secrets.
+- PULUMI-013: MUST explicitly pin the Pulumi CLI (`requiredPulumiVersion`) and provider versions (`packages` map) in `Pulumi.yaml`.
+- PULUMI-014: MUST version-control locally generated SDK artifacts (under `sdks/`) when used by the program.
+- PULUMI-015: MUST always run `pulumi install` after package updates or cloning.
+- PULUMI-016: MUST run `pulumi preview` for PRs. Merges to protected branches MUST run `pulumi up`.
+- PULUMI-017: MUST use update plans (`--save-plan` and `--plan`) for strict change control.
+- PULUMI-018: MUST authenticate clouds via OIDC. Avoid long-lived static credentials.
+- PULUMI-019: MUST detect drift regularly with `pulumi refresh --preview-only`. Treat drift as a production incident.
+- PULUMI-020: MUST prefer `pulumi/actions` over the deprecated `setup-pulumi`.
+- PULUMI-021: MUST use `go test` with Pulumi mocks to validate transformation and business logic.
+- PULUMI-022: MUST use `integration.ProgramTest` for full lifecycle validation and post-deploy assertions.
+- PULUMI-023: MUST enforce policy checks on local and CI previews before merging using pre-built and custom policy packs.
