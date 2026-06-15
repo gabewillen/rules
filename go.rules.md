@@ -1,7 +1,7 @@
 # Go Coding Rules
 
 - GO-001: MUST always build with `CGO_ENABLED=0`. CGO, C toolchains, and `import "C"` are strictly forbidden.
-- GO-002: MUST default to the standard library. Allowed exceptions: `stateforward/hsm.go` (state machines) and `agentflare-ai/go-docmd` (docs). External test/assertion frameworks are forbidden (use built-in `testing`). Require explicit PR justification for any other third-party dependencies.
+- GO-002: MUST default to the standard library. Allowed exceptions: `stateforward/hsm.go` (state machines). External test/assertion frameworks are forbidden (use built-in `testing`). Require explicit PR justification for any other third-party dependencies.
 - GO-003: MUST pin exact patch versions for `go` and `toolchain` in `go.mod`. Run `go fix` in a standalone PR when upgrading.
 - GO-004: MUST rely on Go 1.25+ container awareness. Do not use `automaxprocs` or override `GOMAXPROCS` unless validated by profiling. Set `GOMEMLIMIT` in containerized environments.
 - GO-005: MUST keep `GOEXPERIMENT` empty in production. `goroutineleakprofile` is permitted for CI leak detection.
@@ -31,4 +31,4 @@
 - GO-029: MUST use `/cmd/<app>` for binaries, `/internal/<subsystem>` for implementation, `/pkg/<name>` for public APIs. No import cycles. No `utils` or `common` dumping grounds.
 - GO-030: MUST use short, lowercase, non-stuttering package names. Exported types use `CamelCase`. Receivers should be 1-2 letters derived from the type (no `this`/`self`).
 - GO-031: MUST keep interfaces small and consumer-defined.
-- GO-032: MUST use `doc.go` for package-level docs detailing purpose, concurrency, and performance. Generate READMEs exclusively with `agentflare-ai/go-docmd`. Do not hand-edit generated docs.
+- GO-032: MUST use `doc.go` for package-level docs detailing purpose, concurrency, and performance. Generate READMEs via automation; do not hand-edit generated documentation.
