@@ -1,30 +1,88 @@
----
-trigger: always_on
----
+# REACT-BASE-001 MUST Apply TypeScript Rules
 
-# React Architecture & Best Practices
+See:
+- [TS-STRICT-001](typescript.rules.md#ts-strict-001-must-enable-strict-type-checking)
+- [TS-DATA-001](typescript.rules.md#ts-data-001-must-validate-unknown-data)
 
-- REACT-001: MUST target React 19.2 and React Compiler compatibility. Rely on the compiler instead of manual memoization (`useMemo`, `useCallback`). Use `StrictMode` in development.
-- REACT-002: MUST use modern frameworks (Next, Remix, Vite) over Create React App.
-- REACT-003: MUST treat `shadcn/ui` as owned source code. Assume a Tailwind v4 + CSS variable theming stack. Prefer native HTML semantics over custom role-based widgets. Avoid stacking multiple third-party UI kits.
-- REACT-004: MUST stay single-package until bundle isolation or independent release cycles are strictly required. Extract cross-app reusable primitives to an internal package or registry rather than hand-copying them.
-- REACT-005: MUST never use class components.
-- REACT-006: MUST keep components and hooks strictly pure and idempotent. Do not mutate props, state, or captured objects during render. No side effects in render.
-- REACT-007: MUST prefer explicit props, slots, `asChild`, and `children` over inheritance, HOCs, or massive configuration objects. Avoid `cloneElement` and `Children` outside of low-level infrastructure.
-- REACT-008: MUST avoid boolean matrices for styles; use constrained union props (e.g., `variant`, `tone`). Use semantic prop names instead of generic ones like `data` or `config`.
-- REACT-009: MUST pass `ref` as a standard prop (React 19+). Do not use `forwardRef`. Use `useImperativeHandle` strictly for imperative contracts (focus, scroll, measure). Never use refs for render-driving state.
-- REACT-010: MUST default to local state. Escalate to global stores only when local state is proven insufficient.
-- REACT-011: MUST derive values from props or existing state during render instead of syncing them into state variables.
-- REACT-012: MUST always update arrays and objects immutably.
-- REACT-013: MUST use reducers or discriminated unions for multi-step flows and async UI. Use a single `status` field (`idle`, `loading`, `success`, `error`) instead of contradictory booleans (`isLoading`, `isSaving`).
-- REACT-014: MUST change a component's `key` prop to completely reset its state. Never use an effect to reset state when props change.
-- REACT-015: MUST use Context only for stable, globally shared values (auth, theme, locale). For rapidly changing external data, use `useSyncExternalStore`.
-- REACT-016: MUST use `useEffect` ONLY for synchronizing with external systems (DOM APIs, timers, third-party subscriptions).
-- REACT-017: MUST move user-driven logic to event handlers. Move pure data transformations to render. Do not use effects for data flow.
-- REACT-018: MUST never disable `exhaustive-deps`. Design around the linter. Use `useEffectEvent` to read the latest state/props without triggering an effect re-run.
-- REACT-019: MUST keep `components/ui/` for low-level, generic primitives (shadcn, wrappers). These must not contain domain logic, network knowledge, or import from feature modules.
-- REACT-020: MUST keep `features/<domain>/` for domain-specific UI and state. Must not import from other features' internals. Do not hide network/storage work inside leaf components.
-- REACT-021: MUST keep `lib/` and `services/` for pure boundary code (HTTP, storage, auth, formatters).
-- REACT-022: MUST keep `app/` and `routes/` for top-level modules that compose features and host route-level boundaries.
-- REACT-023: MUST never use "common", "misc", or "shared" folders for mixed concerns. Move shared code upward only if used by multiple call sites and it remains conceptually general.
-- REACT-024: MUST ensure server-only and client-only code do not share files unless explicitly supported by the framework.
+React code written in TypeScript MUST comply with the TypeScript rules.
+
+# REACT-PURE-001 MUST Keep Render Pure
+
+See:
+- [CORE-DET-001](core.rules.md#core-det-001-must-deterministic-behavior)
+
+Components and hooks MUST be pure and idempotent during render.
+
+Render code MUST NOT mutate props, state, captured objects, or external systems.
+
+# REACT-STATE-001 MUST Keep Source State Minimal
+
+See:
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+React components MUST store only source state.
+
+Values derived from props, state, or cached data SHOULD be computed during render or through selectors.
+
+# REACT-STATE-002 MUST Represent Exclusive Modes Explicitly
+
+See:
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+Mutually exclusive UI modes MUST be represented with a single status value, reducer state, discriminated union, or state machine.
+
+Contradictory boolean matrices are forbidden.
+
+# REACT-EFFECT-001 MUST Use Effects Only For External Synchronization
+
+See:
+- [CORE-BOUND-001](core.rules.md#core-bound-001-must-explicit-platform-boundaries)
+
+`useEffect` MUST synchronize React with external systems such as DOM APIs, timers, subscriptions, storage, or network clients.
+
+Effects MUST NOT be used to derive render state that can be computed directly.
+
+# REACT-EFFECT-002 MUST Respect Effect Dependencies
+
+See:
+- [CORE-DET-001](core.rules.md#core-det-001-must-deterministic-behavior)
+
+Effect dependency rules MUST NOT be disabled to hide stale closure bugs.
+
+Code SHOULD be restructured when dependency rules expose design problems.
+
+# REACT-REF-001 MUST Not Store Render State In Refs
+
+See:
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+Refs MAY hold imperative handles, DOM nodes, timers, subscriptions, and other non-rendering mutable values.
+
+Refs MUST NOT hold state that drives rendering.
+
+# REACT-COMP-001 SHOULD Prefer Explicit Composition
+
+See:
+- [CORE-API-001](core.rules.md#core-api-001-must-explicit-api-contracts)
+
+Components SHOULD use explicit props, children, slots, or composition over inheritance and opaque configuration objects.
+
+Boolean style matrices SHOULD be replaced with constrained variants.
+
+# REACT-BOUND-001 MUST Separate Client And Server Boundaries
+
+See:
+- [CORE-BOUND-001](core.rules.md#core-bound-001-must-explicit-platform-boundaries)
+
+Server-only and client-only code MUST remain separated unless the framework explicitly supports a shared module.
+
+Browser-only APIs MUST NOT be imported by server-only code.
+
+# REACT-TEST-001 SHOULD Test Behavior Through The UI
+
+See:
+- [CORE-TEST-001](core.rules.md#core-test-001-must-deterministic-tests)
+
+React tests SHOULD assert user-visible behavior and state transitions rather than implementation details.
+
+External systems SHOULD be mocked at module or boundary adapters.

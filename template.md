@@ -1,380 +1,263 @@
-# <LANGUAGE>.rules.md
+# Rules Framework Specification
 
 Version: 1.0
-Status: Normative
+
+## Philosophy
+
+Rules are plain Markdown.
+
+A rule is a heading.
+
+A rule may reference other rules using standard Markdown links.
+
+No custom syntax, metadata formats, parsers, databases, or dependency engines are required.
+
+The rule graph emerges naturally from Markdown links.
 
 ---
 
-# 1. Purpose
+## Repository Structure
 
-These rules define mandatory engineering constraints for production systems.
-
-Goals:
-
-- Deterministic behavior
-- Predictable latency
-- Strong correctness guarantees
-- High maintainability
-- High observability
-- Explicit ownership
-- Reproducible builds
-- Security by default
-
----
-
-# 2. Rule Language
-
-The following keywords are normative:
-
-- MUST
-- MUST NOT
-- SHOULD
-- SHOULD NOT
-- MAY
+```text
+rules/
+├── core.rules.md
+├── patterns.rules.md
+├── organization.rules.md
+├── python.rules.md
+├── cpp.rules.md
+├── rust.rules.md
+├── typescript.rules.md
+├── go.rules.md
+├── dart.rules.md
+└── java.rules.md
+```
 
 ---
 
-# 3. Core Invariants
+## Rule Categories
 
-These invariants override all other rules.
+### Core Rules
 
-## Determinism
+Universal engineering principles.
 
-Systems MUST produce identical observable behavior when provided:
+Examples:
 
-- identical inputs
-- identical initial state
-- identical configuration
-- identical runtime environment
+```text
+CORE-DET-001
+CORE-MEM-001
+CORE-CONC-001
+CORE-ERR-001
+CORE-TEST-001
+```
 
-## Single Writer
+### Pattern Rules
 
-Mutable state MUST have exactly one logical writer.
+Reusable architecture and design patterns.
 
-Concurrent readers MAY exist.
+Examples:
 
-## Bounded Work
+```text
+PAT-ACTOR-001
+PAT-HSM-001
+PAT-ECS-001
+PAT-PIPELINE-001
+```
 
-Every execution path MUST have a provable upper bound.
+### Organization Rules
 
-Unbounded loops, recursion, retries, or retries-until-success are forbidden.
+Repository and codebase organization.
 
-## Explicit Ownership
+Examples:
 
-Ownership and lifetime MUST be obvious from code.
+```text
+ORG-PKG-001
+ORG-MOD-001
+ORG-TEST-001
+ORG-DOC-001
+```
+
+### Language Rules
+
+Language-specific implementations and guidance.
+
+Examples:
+
+```text
+PY-TYPE-001
+CPP-MEM-001
+RS-CONC-001
+TS-API-001
+```
+
+---
+
+## Rule Format
+
+A rule is defined by a Markdown heading.
+
+Format:
+
+```markdown
+# <RULE-ID> <RFC-2119-KEYWORD> <Rule Title>
+```
+
+Examples:
+
+```markdown
+# CORE-MEM-001 MUST Explicit Ownership
+# CORE-GLOB-001 MUST NOT Hidden Global State
+# CORE-ERR-001 SHOULD Explicit Error Handling
+# CORE-DI-001 MAY Dependency Injection
+```
+
+---
+
+## Allowed Keywords
+
+Use RFC 2119 keywords only:
+
+* MUST
+* MUST NOT
+* SHOULD
+* SHOULD NOT
+* MAY
+
+These keywords carry their standard normative meanings.
+
+---
+
+## Rule References
+
+Rules reference other rules using standard Markdown links.
+
+Within the same document:
+
+```markdown
+See:
+- [CORE-MEM-001](#core-mem-001-must-explicit-ownership)
+```
+
+Across documents:
+
+```markdown
+See:
+- [CORE-MEM-001](core.rules.md#core-mem-001-must-explicit-ownership)
+```
+
+Multiple references:
+
+```markdown
+See:
+- [CORE-MEM-001](core.rules.md#core-mem-001-must-explicit-ownership)
+- [CORE-CONC-001](core.rules.md#core-conc-001-must-thread-safety)
+- [PAT-ACTOR-001](patterns.rules.md#pat-actor-001-must-actor-state-ownership)
+```
+
+---
+
+## Example Core Rule
+
+```markdown
+# CORE-MEM-001 MUST Explicit Ownership
+
+Ownership MUST be obvious from code.
+
+Objects MUST have a clearly defined owner.
 
 Hidden ownership transfer is forbidden.
-
-## No Hidden Control Flow
-
-State changes, side effects, and execution transitions MUST be explicit.
-
-Framework magic, implicit callbacks, and hidden orchestration SHOULD be avoided.
+```
 
 ---
 
-# 4. Execution Model
+## Example Language Rule
 
-## Runtime Phases
+```markdown
+# PY-TYPE-001 MUST Type Hint Public APIs
 
-Systems MUST separate:
+See:
+- [CORE-API-001](core.rules.md#core-api-001-must-explicit-api-contracts)
 
-### Initialization
+Public APIs MUST include type annotations.
 
-Allowed:
-
-- configuration
-- dependency construction
-- resource acquisition
-- allocation
-- discovery
-
-### Runtime
-
-Allowed:
-
-- bounded work
-- deterministic computation
-- validated state transitions
-
-Runtime code MUST NOT:
-
-- block indefinitely
-- allocate unexpectedly
-- depend on external mutable state
+Modern Python typing syntax MUST be used.
+```
 
 ---
 
-# 5. State Management
+## Example Pattern Rule
 
-## State Ownership
+```markdown
+# PAT-ACTOR-001 MUST Actor State Ownership
 
-State MUST:
+See:
+- [CORE-CONC-001](core.rules.md#core-conc-001-must-thread-safety)
 
-- have a clear owner
-- have documented lifetime
-- have documented mutation rules
+Actors MUST exclusively own their mutable state.
 
-## State Mutation
+Actors MUST NOT directly mutate another actor's state.
 
-Mutation MUST occur through explicit operations.
-
-Shared mutable global state is forbidden.
-
----
-
-# 6. Memory Rules
-
-## Allocation
-
-Allocation policy MUST be documented.
-
-Projects MUST define:
-
-- where allocation is allowed
-- where allocation is forbidden
-- exhaustion behavior
-
-## Lifetimes
-
-Object lifetimes MUST be explicit.
-
-Dangling references are release-blocking defects.
-
-## Resource Management
-
-Resources MUST have deterministic acquisition and release.
+Cross-actor communication MUST occur through messages.
+```
 
 ---
 
-# 7. Concurrency Rules
+## Example Organization Rule
 
-## Shared State
+```markdown
+# ORG-PKG-001 MUST Acyclic Package Dependencies
 
-Shared writable state MUST be minimized.
+Packages MUST form an acyclic dependency graph.
 
-## Synchronization
-
-Synchronization contracts MUST be documented.
-
-## Data Races
-
-Data races are release-blocking defects.
-
-## Threading
-
-Thread creation and destruction MUST occur only at approved lifecycle boundaries.
+Circular dependencies are forbidden.
+```
 
 ---
 
-# 8. Error Handling
+## Authoring Guidelines
 
-## Expected Failures
+Rules SHOULD:
 
-Expected failures MUST be represented explicitly.
+* be concise
+* be normative
+* be independently understandable
+* reference related rules when useful
 
-Examples:
+Rules SHOULD NOT:
 
-- result types
-- status values
-- error objects
+* duplicate requirements from other rules
+* contain tutorials
+* contain extensive examples
+* contain project-specific guidance
 
-## Fatal Failures
+Rules MAY contain:
 
-Fatal failures MUST have deterministic behavior.
+* rationale
+* implementation notes
+* references to external standards
 
-Examples:
-
-- fail-stop
-- fault state
-- process termination
-
-## Error Propagation
-
-Errors MUST propagate explicitly.
-
-Hidden global error channels are forbidden.
+when such information improves clarity.
 
 ---
 
-# 9. API Design
-
-## API Classification
-
-Every API MUST be classified as:
-
-- Runtime Safe
-- Initialization Only
-- Boundary
-
-## Contracts
-
-APIs MUST document:
-
-- inputs
-- outputs
-- ownership
-- failure modes
-
-## Units
-
-Units MUST be explicit.
-
-Examples:
-
-- Duration
-- Bytes
-- Counts
-
----
-
-# 10. Data Structures
-
-## Selection Criteria
-
-Data structures MUST be chosen based on:
-
-- access patterns
-- cache behavior
-- bounded complexity
-- memory constraints
-
-## Hot Paths
-
-Hot paths SHOULD favor:
-
-- contiguous storage
-- fixed capacity structures
-- predictable access patterns
-
----
-
-# 11. Observability
-
-## Logging
-
-Logging MUST:
-
-- be bounded
-- be non-blocking
-- have defined overflow behavior
-
-## Telemetry
-
-Telemetry MUST NOT alter functional behavior.
-
-## Diagnostics
-
-Diagnostics MUST be removable without affecting correctness.
-
----
-
-# 12. Platform Boundaries
-
-## External Systems
-
-All interaction with:
-
-- filesystems
-- networks
-- operating systems
-- hardware
-- clocks
-
-MUST occur through explicit boundary layers.
-
-## Dependency Isolation
-
-Platform-specific behavior MUST be isolated.
-
----
-
-# 13. Security
-
-## Input Validation
-
-All untrusted input MUST be validated before use.
-
-## Secrets
-
-Secrets MUST NOT be stored in source control.
-
-## Dependency Management
-
-Dependencies MUST be versioned and pinned.
-
----
-
-# 14. Build Rules
-
-## Toolchains
-
-Toolchains MUST be reproducible.
-
-Compiler versions MUST be pinned.
-
-## Warnings
-
-Warnings MUST be treated as errors.
-
-## Reproducibility
-
-Build outputs SHOULD be reproducible.
-
----
-
-# 15. Testing Requirements
-
-Projects MUST include:
-
-- unit tests
-- integration tests
-- deterministic replay tests
-- fault injection tests
-
-Where applicable:
-
-- sanitizer runs
-- race detection
-- fuzz testing
-- performance regression testing
-
----
-
-# 16. Performance Rules
-
-Performance claims MUST be measured.
-
-Optimization decisions MUST be justified with profiling data.
-
-Micro-optimizations without evidence are forbidden.
-
----
-
-# 17. Prohibited Practices
-
-The following are forbidden unless explicitly documented and approved:
-
-- hidden allocations
-- hidden ownership transfer
-- hidden control flow
-- unbounded retries
-- unbounded queues
-- undocumented synchronization
-- undocumented global state
-- undefined behavior
-- data races
-- silent failure handling
-
----
-
-# 18. Exception Process
-
-Rule violations MUST:
-
-1. be documented
-2. have an owner
-3. have tests covering risk
-4. have a removal plan
-
-Temporary exceptions MUST expire.
+## Design Goals
+
+The framework MUST remain:
+
+* Plain Markdown
+* Human readable
+* AI readable
+* Git friendly
+* Searchable
+* Linkable
+* Language agnostic
+* Tool agnostic
+
+The framework MUST NOT require:
+
+* Custom parsers
+* Custom metadata schemas
+* Databases
+* Build-time preprocessing
+* Special tooling
+
+Markdown headings and links are the canonical source of truth.

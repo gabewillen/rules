@@ -1,45 +1,89 @@
-# Flutter Coding Rules
+# FLUTTER-BASE-001 MUST Apply Dart Rules
 
-These rules provide a highly optimized, enforceable standard for Flutter development. They apply to all code across iOS, Android, Web, macOS, Windows, and Linux targets.
+See:
+- [DART-TYPE-001](dart.rules.md#dart-type-001-must-enforce-sound-null-safety)
+- [DART-ASYNC-001](dart.rules.md#dart-async-001-must-handle-futures-explicitly)
 
-- FLUTTER-001: MUST target all supported platforms from one unified codebase. Use Flutter as the sole UI runtime; avoid per-platform rewrites.
-- FLUTTER-002: MUST expect adaptive behavior, not identical UI everywhere. Isolate platform-specific capabilities (native host code, JS glue) behind explicit platform adapters.
-- FLUTTER-003: MUST never assume a plugin works everywhere without verifying. Document OS/browser baselines and use a platform support matrix for new capabilities.
-- FLUTTER-004: MUST assume Impeller is the default renderer on modern iOS/Android. Treat Web as a hostile client and plan for both default and WebAssembly build modes.
-- FLUTTER-005: MUST group code by feature (`presentation/`, `state/`, `data/`, `domain/`), not by technical type (e.g., no dumping grounds like `utils/`).
-- FLUTTER-006: MUST follow strict layering: Presentation (UI) renders state and forwards intents with no business logic; State/Controller manages view state, coordinates async tasks, calls repositories; Data/Platform contains repositories and adapters and MUST NEVER import `package:flutter/...` or `dart:ui`.
-- FLUTTER-007: MUST enforce inward-only dependency flow: UI → State → Data → Low-level clients.
-- FLUTTER-008: MUST expose features via a single `feature.dart` entrypoint. Never import private files across feature boundaries.
-- FLUTTER-009: MUST universally adopt one primary state management framework (default: Riverpod).
-- FLUTTER-010: MUST keep state as close to the feature as possible. Avoid global "god providers".
-- FLUTTER-011: MUST use `setState` solely for local, ephemeral UI states (e.g., hover effects, text field toggles) that do not affect cross-screen behavior.
-- FLUTTER-012: MUST explicitly model async state (`loading`/`data`/`error`). Handle all three states gracefully in the UI.
-- FLUTTER-013: MUST treat state objects and collections as strictly immutable.
-- FLUTTER-014: MUST heavily utilize `const` constructors. Keep `build()` fast—no synchronous I/O, heavy parsing, or network calls.
-- FLUTTER-015: MUST always virtualize dynamic or large lists (`ListView.builder`, slivers). Never use eager lists for unbounded children.
-- FLUTTER-016: MUST prefer extracting reusable UI pieces into small `StatelessWidget`s (< 200 lines) rather than using helper functions.
-- FLUTTER-017: MUST centralize all styling inside a `design_system` module utilizing `ThemeData`, `ColorScheme`, and `ThemeExtension`.
-- FLUTTER-018: MUST NOT use magic numbers (`EdgeInsets.all(17)`), `Color(0x...)`, or inline `TextStyle(...)` inside feature UI. Consume tokens strictly from the design system.
-- FLUTTER-019: MUST use Navigator 2.0 via a designated routing package (default: `go_router`).
-- FLUTTER-020: MUST treat deep links as first-class citizens. Ensure all user-facing screens have stable, addressable routes. Use typed route parameters.
-- FLUTTER-021: MUST configure the URL strategy intentionally (path vs. hash). Do not disable default browser back/forward behaviors.
-- FLUTTER-022: MUST never block the main isolate. Offload heavy CPU work (JSON parsing, cryptography) to isolates using `compute()` where supported.
-- FLUTTER-023: MUST implement timeouts and cancellation for network and long-running tasks. Catch all async errors; do not swallow them.
-- FLUTTER-024: MUST measure and validate performance in **profile or release mode** only. Use DevTools to trace animations and heavy lists.
-- FLUTTER-025: MUST keep animations cheap by minimizing opacity layers and avoiding large repaints. Use `RepaintBoundary` when profiling confirms its benefit.
-- FLUTTER-026: MUST keep web-only code behind an adapter. Validate web release builds via a local web server. Avoid storing long-lived auth tokens in `localStorage`.
-- FLUTTER-027: MUST support comprehensive keyboard navigation, focus traversal, and dynamic window sizing on desktop. Never assume mobile constraints or require a mouse for fundamental flows.
-- FLUTTER-028: MUST handle app lifecycle events explicitly (backgrounding, audio) on mobile. Respect platform navigation conventions (Android system back, iOS swipe back).
-- FLUTTER-029: MUST centralize HTTP client configuration (timeouts, headers, auth, retries). Do not make direct HTTP calls from widgets.
-- FLUTTER-030: MUST use `shared_preferences` **only** for small, non-sensitive preferences. Use secure storage for tokens. Abstract all persistence behind repositories.
-- FLUTTER-031: MUST never embed secrets or API keys in the client. Enforce TLS validation. Rely on vetted, platform-provided cryptographic primitives.
-- FLUTTER-032: MUST unit test repositories and pure logic without Flutter. Widget test UI logic. Maintain integration tests for critical user journeys. Keep tests hermetic.
-- FLUTTER-033: MUST use structured logging. Centralize reporting for uncaught errors. Do not log PII, auth tokens, or secrets.
-- FLUTTER-034: MUST ensure all interactive controls are keyboard reachable, maintain a logical focus order, and expose semantic labels. Do not use gesture detectors on containers as buttons.
-- FLUTTER-035: MUST never hard-code user-facing strings. Utilize Flutter's localization tooling (ARB files, `l10n.yaml`).
-- FLUTTER-036: MUST NEVER perform network calls, database/file I/O, or platform channel calls inside `build()`.
-- FLUTTER-037: MUST NEVER store auth tokens in `shared_preferences` or log sensitive secrets.
-- FLUTTER-038: MUST NEVER scatter `kIsWeb` or `Platform.isX` checks across feature UI; abstract them into platform adapters.
-- FLUTTER-039: MUST NEVER use empty `catch` blocks. All errors must be handled or explicitly logged.
-- FLUTTER-040: MUST NEVER use raw `print()` for production logging.
-- FLUTTER-041: MUST NEVER import `dart:io` in files that will be compiled for the web.
+Flutter code MUST comply with the Dart rules unless a Flutter framework boundary explicitly requires otherwise.
+
+# FLUTTER-UI-001 MUST Keep Build Methods Pure
+
+See:
+- [CORE-DET-001](core.rules.md#core-det-001-must-deterministic-behavior)
+
+`build()` methods MUST be pure, fast render functions.
+
+Network calls, database or file I/O, platform channel calls, heavy parsing, and synchronous blocking work are forbidden inside `build()`.
+
+# FLUTTER-STATE-001 MUST Keep State Ownership Explicit
+
+See:
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+Flutter state MUST live as close as practical to its owner.
+
+Global state MUST be used only for values that are genuinely shared across independent UI areas.
+
+# FLUTTER-ASYNC-001 MUST Model Async UI States
+
+See:
+- [CORE-ERR-001](core.rules.md#core-err-001-must-explicit-failure-handling)
+
+Async UI flows MUST model loading, success, empty, and failure states explicitly.
+
+Errors MUST NOT be swallowed by UI callbacks or builders.
+
+# FLUTTER-LIST-001 MUST Virtualize Large Lists
+
+See:
+- [CORE-WORK-001](core.rules.md#core-work-001-must-bounded-runtime-work)
+
+Dynamic or large child lists MUST use lazy builders or slivers.
+
+Eager widget lists are forbidden for unbounded data.
+
+# FLUTTER-PLATFORM-001 MUST Isolate Platform Differences
+
+See:
+- [CORE-BOUND-001](core.rules.md#core-bound-001-must-explicit-platform-boundaries)
+
+Platform-specific capabilities MUST be isolated behind adapters.
+
+Feature UI MUST NOT scatter `kIsWeb`, `Platform.isX`, or host-specific checks.
+
+# FLUTTER-NAV-001 SHOULD Make Routes Addressable
+
+See:
+- [CORE-API-001](core.rules.md#core-api-001-must-explicit-api-contracts)
+
+User-facing screens SHOULD have stable, addressable routes.
+
+Route parameters SHOULD be typed or validated before use.
+
+# FLUTTER-ACCESS-001 MUST Preserve Accessibility
+
+Interactive controls MUST be keyboard reachable where the platform supports keyboards.
+
+Controls MUST expose semantic labels and logical focus order.
+
+Gesture-only controls MUST NOT replace platform button semantics.
+
+# FLUTTER-SEC-001 MUST Protect Client Secrets
+
+See:
+- [CORE-SEC-001](core.rules.md#core-sec-001-must-validate-untrusted-input)
+
+Flutter clients MUST NOT embed secrets or long-lived private credentials.
+
+Sensitive tokens MUST NOT be stored in plain preferences or logged.
+
+# FLUTTER-TEST-001 MUST Test At The Right Boundary
+
+See:
+- [CORE-TEST-001](core.rules.md#core-test-001-must-deterministic-tests)
+
+Pure logic SHOULD be unit tested without Flutter.
+
+Widget tests SHOULD cover UI behavior.
+
+Integration tests SHOULD cover critical user journeys.
