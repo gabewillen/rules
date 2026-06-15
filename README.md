@@ -17,6 +17,7 @@ The authoring specification is [template.md](template.md). In short:
 Core and reusable pattern rules:
 
 - [core.rules.md](core.rules.md)
+- [dbc.rules.md](dbc.rules.md)
 - [patterns.rules.md](patterns.rules.md)
 
 Language rules:
@@ -25,6 +26,7 @@ Language rules:
 - [dart.rules.md](dart.rules.md)
 - [go.rules.md](go.rules.md)
 - [python.rules.md](python.rules.md)
+- [rust.rules.md](rust.rules.md)
 - [typescript.rules.md](typescript.rules.md)
 
 Framework and tooling rules:
