@@ -1,0 +1,60 @@
+---
+trigger: always_on
+---
+
+- HNO-001: Write Hono APIs that are predictable, strongly typed, easy to compose, and cheap for future agents to reason about.
+- HNO-002: Keep path, validation, and handler together in the same route definition.
+- HNO-003: Keep handlers thin; put business logic in dedicated services or library code.
+- HNO-004: Favor explicit HTTP semantics even when using Hono RPC.
+- HNO-005: Export route-tree types (e.g., `export type AppType = typeof routes`); do not hand-copy request or response contracts.
+- HNO-006: Centralize prefixes, versioning, and error shapes to ensure consistency.
+- HNO-007: Prefer default Hono behavior and middleware unless the runtime environment forces a different choice.
+- HNO-008: Organize routes by domain and mount each domain as a sub-app via `app.route('/prefix', subApp)`.
+- HNO-009: Use `app.mount()` ONLY to attach non-Hono handlers or different frameworks.
+- HNO-010: Define child routes before mounting them to prevent silent 404s caused by incorrect grouping order.
+- HNO-011: Centralize API versioning (e.g., `basePath('/api/v1')`) and avoid repeating version prefixes in individual route files.
+- HNO-012: Maintain a consistent trailing-slash policy; Hono strict mode is `true` by default and should only be changed once at app creation.
+- HNO-013: Use the default `hono` preset for most APIs; reserve `hono/quick` or `hono/tiny` for specific runtime or footprint constraints.
+- HNO-014: Use chained route definitions for modules that must participate in Hono RPC or `testClient()` type inference.
+- HNO-015: Keep route parameters simple; use regex routes or client-side encoding for parameters that may contain slashes.
+- HNO-016: Define the `notFound()` handler on the top-level application instance only.
+- HNO-017: Treat Hono RPC as typed HTTP; export exact typed route trees (e.g., `export const routes = new Hono()...` followed by `export type AppType = typeof routes`).
+- HNO-018: In monorepos, maintain `"strict": true` in both server and client `tsconfig.json` files.
+- HNO-019: Use `hc<AppType>(baseUrl)` for first-party clients to leverage full type safety.
+- HNO-020: Keep route names resource-oriented and HTTP-based; do not invent opaque, RPC-only method names.
+- HNO-021: Prefer stable REST-style routes for public APIs and Hono RPC for internal or first-party clients.
+- HNO-022: Return `c.json(body, literalStatus)` for every RPC outcome you want correctly typed on the client.
+- HNO-023: Avoid `c.notFound()` and raw `new Response()` in typed RPC handlers; they weaken client inference unless handled explicitly at the top level.
+- HNO-024: Use `InferRequestType` and `InferResponseType` when building wrappers or helpers around `hc`.
+- HNO-025: Use `parseResponse()` at the client edge when you want typed parsing plus automatic throwing of non-OK status errors.
+- HNO-026: Use `$url()` or `$path()` helpers instead of manual path strings when building internal links or cache keys.
+- HNO-027: Put common client headers in `hc(..., { headers })`; use per-call headers ONLY for call-specific concerns.
+- HNO-028: Read validated input via `c.req.valid(target)` ONLY; use direct request parsing only at the validation boundary.
+- HNO-029: Explicitly type `Bindings` and `Variables` on the `new Hono<Env>()` instance.
+- HNO-030: Prefer `createMiddleware` or `createFactory<Env>()` for creating reusable, strongly-typed middleware stacks.
+- HNO-031: Use `c.set()` and `c.get()` ONLY for request-scoped data (e.g., auth payloads, request IDs); DO NOT store business state in the `Context`.
+- HNO-032: Register middleware in an intentional order: (1) Logging/Tracing, (2) Security/CORS/Limits, (3) Auth, (4) Route-level Validation, (5) Handler.
+- HNO-033: Prefer path-scoped middleware over global middleware to minimize side effects.
+- HNO-034: Use early returns in middleware ONLY for cross-cutting guards like authentication, quota enforcement, or shape rejection.
+- HNO-035: Use built-in middleware (`requestId()`, `secureHeaders()`, `cors()`, `bodyLimit()`, `timeout()`) whenever possible.
+- HNO-036: Keep middleware transport-focused; DO NOT hide core business workflows inside middleware functions.
+- HNO-037: Prefer `@hono/zod-validator` with Zod for validating agent-authored Hono APIs.
+- HNO-038: Validate each request surface (`param`, `query`, `header`, `cookie`, `json`, `form`) separately and read ONLY validated data.
+- HNO-039: Keep schema coercion at the transport boundary and keep transport schemas isolated from domain models.
+- HNO-040: Require the correct `Content-Type` header when validating `json` or `form` requests (and ensure tests set it).
+- HNO-041: Header validator keys MUST be lowercase.
+- HNO-042: Add OpenAPI tooling ONLY when external contract generation is a hard requirement.
+- HNO-043: Standardize on a single JSON error envelope for the entire API: `{ error: { code, message, details? }, requestId? }`.
+- HNO-044: Throw `HTTPException` for expected boundary failures in middleware and transport-layer code.
+- HNO-045: Return typed JSON errors with explicit status codes in all RPC-enabled routes.
+- HNO-046: NEVER leak stack traces or raw exception objects to clients; map internal errors to the standard JSON envelope.
+- HNO-047: Follow the professional file layout: `src/app.ts`, `src/routes/v1/`, `src/services/`, `src/lib/validation/`, `src/lib/http/errors.ts`.
+- HNO-048: Maintain one route module per domain or aggregate; DO NOT create giant, monolithic router files.
+- HNO-049: DO NOT mix database access code, authentication policies, and transport-level mapping in the same file.
+- HNO-050: Use `app.request()` for black-box HTTP tests and `testClient(app)` for typed RPC/route tests.
+- HNO-051: Assert status codes, headers, and response body shapes for both success and failure cases in all tests.
+- HNO-052: Use `showRoutes(app)`, `routePath()`, and `matchedRoutes()` for route introspection and debugging.
+- HNO-053: MUST NOT use RoR-style controller extraction that loses path-parameter type inference.
+- HNO-054: MUST NOT define routes as standalone variables separately from the app/router if full RPC inference is required.
+- HNO-055: MUST NOT call `await c.req.json()` in handlers; always validate the body via middleware first.
+- HNO-056: MUST NOT use global auth or validation middleware for routes that do not strictly require it.

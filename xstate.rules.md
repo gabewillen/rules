@@ -1,0 +1,33 @@
+---
+trigger: always_on
+---
+
+- XST-001: ALWAYS model behavior with states, not status flags.
+- XST-002: ALWAYS use guards for conditions; NEVER use if/else logic in actions.
+- XST-003: ALWAYS use `dot.case` event naming (e.g., 'user.clicked', 'data.loaded').
+- XST-004: ALWAYS pass actor refs explicitly via input; NEVER use `sendParent()`.
+- XST-005: ALWAYS use `systemId` for gossip/broadcast patterns.
+- XST-006: ALWAYS decompose by bounded responsibility.
+- XST-007: ALWAYS use dot.case format for all event names (e.g., 'form.submit', 'timer.tick').
+- XST-008: ALWAYS use wildcards for event groups (e.g., 'user.*').
+- XST-009: NEVER use conditionals in actions; ALWAYS use guarded transitions.
+- XST-010: ALWAYS keep guards pure. Side effects (logging, I/O) MUST be moved to actions.
+- XST-011: NEVER use `sendParent()`; ALWAYS pass actor refs explicitly via input.
+- XST-012: ALWAYS pass all needed actor refs (coordinator, logger, siblings) via input for decoupled communication.
+- XST-013: ALWAYS use `systemId` for global event broadcasting and gossip patterns.
+- XST-014: ALWAYS use an event bus for pub-sub patterns implemented via shared `systemId`.
+- XST-015: ALWAYS use `invoke` when an actor's lifecycle is tied to a specific state.
+- XST-016: ALWAYS use `spawn` for dynamic or multiple actors requiring manual lifecycle control.
+- XST-017: ALWAYS create separate actors for independent concerns; NEVER create God machines with multiple responsibilities.
+- XST-018: ALWAYS use parallel states for independent concurrent concerns within a single machine.
+- XST-019: ALWAYS model asynchronous operations (Request-Response) as discrete states: idle, loading, success, and error.
+- XST-020: ALWAYS use context for stateful metadata like retry attempts and backoff counters.
+- XST-021: ALWAYS use `reenter: true` on transitions to reset timers for debouncing patterns.
+- XST-022: ALWAYS use hierarchical (parent) states to avoid repeating shared transitions (e.g., global logout or offline events).
+- XST-023: ALWAYS keep context minimal; store only essential identifiers and metadata, not full domain objects or UI state.
+- XST-024: NEVER mutate context directly; ALWAYS use `assign()`.
+- XST-025: ALWAYS organize action implementations in the `setup()` function.
+- XST-026: ALWAYS use `enqueueActions` for complex action sequences requiring conditional scheduling or multiple mutations.
+- XST-027: NEVER put if/else logic in actions; use guards and multiple transitions instead.
+- XST-028: NEVER use boolean flags in context as a substitute for explicit state modeling.
+- XST-029: NEVER use commands (verbs) as event names (e.g., 'setLoading'); ALWAYS use semantic events ('data.loaded').
