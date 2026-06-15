@@ -2,66 +2,38 @@
 trigger: always_on
 ---
 
-- RCT-001: Target React 19.2 semantics for new code. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-002: Target React Compiler compatible code even if the compiler is not yet enabled. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-003: Treat shadcn/ui as owned source code, not a black-box component package. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-004: Assume Tailwind v4 + CSS variable theming stack when shadcn/ui is present. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-005: Use function components only in new code. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-006: Run StrictMode in development by default. [S1][S2][S3][S31][S34][S35][S58]
-- RCT-007: New apps MUST NOT start from Create React App. [S29][S30]
-- RCT-008: Use a framework (routing, SSR, RSC) or modern build tool (Vite, Parcel, Rsbuild) for new apps. [S29][S30]
-- RCT-009: Prefer pure render logic, local state, reducers, and explicit boundaries over effects and global stores. [S3][S5][S6][S7][S46][S48][S49]
-- RCT-010: Prefer React Compiler + lints over blanket manual memoization. [S3][S5][S6][S7][S46][S48][S49]
-- RCT-011: Prefer native HTML semantics over custom role-based widgets. [S3][S5][S6][S7][S46][S48][S49]
-- RCT-012: Prefer owned UI primitives over stacking multiple third-party UI kits. [S3][S5][S6][S7][S46][S48][S49]
-- RCT-013: MUST NOT use new class components.
-- RCT-014: MUST NOT use new `forwardRef` in React 19+ code.
-- RCT-015: MUST NOT default to `useEffect` for data flow.
-- RCT-016: MUST NOT default to global state before proving local state is insufficient.
-- RCT-017: `components/ui/*` MUST contain only low-level owned primitives (vendored shadcn, thin wrappers, token-aware blocks). [S31][S32][S37][S38][S39][S54]
-- RCT-018: `features/<domain>/*` MUST contain domain-specific UI and state. [S31][S32][S37][S38][S39][S54]
-- RCT-019: `lib/*`, `services/*`, or `adapters/*` MUST contain boundary code (HTTP, analytics, storage, auth, formatters). [S31][S32][S37][S38][S39][S54]
-- RCT-020: `app/*`, `routes/*`, or framework route modules compose features and host route-level boundaries. [S31][S32][S37][S38][S39][S54]
-- RCT-021: `components/ui/*` MUST NOT import from feature modules.
-- RCT-022: Feature modules MUST NOT import from other features' internals.
-- RCT-023: Shared code MUST move upward only when used by at least two call sites and still semantically general. [S23][S24][S31]
-- RCT-024: Stay single-package until sharing primitives across apps, the UI primitives need a separate release cadence, or bundle isolation is required. [S37]
-- RCT-025: Cross-app reusable primitives SHOULD move into an internal package or internal shadcn registry. [S38][S39][S40]
-- RCT-026: MUST NOT hand-copy components between apps once two apps depend on them.
-- RCT-027: Registry items MUST declare runtime and development dependencies explicitly. [S38][S39][S40]
-- RCT-028: UI primitives MUST NOT know about routers, analytics, auth state, or storage. [S54][S55]
-- RCT-029: Feature components SHOULD NOT hide network or storage work inside leaf components. [S54][S55]
-- RCT-030: Server-only code and client-only code MUST NOT share a file unless the framework explicitly supports it. [S54][S55]
-- RCT-031: MUST NOT use "common", "misc", or "shared" folders with mixed concerns.
-- RCT-032: MUST NOT copy-paste primitives across apps after the second use.
-- RCT-033: Components and hooks MUST be pure and idempotent with respect to props, state, and context. [S6][S7]
-- RCT-034: MUST NOT mutate props, state, or objects captured from earlier renders. [S6][S7]
-- RCT-035: MUST NOT perform side effects in render. [S6][S7]
-- RCT-036: Keep component APIs narrow; prefer explicit props over large options objects. [S6][S7]
-- RCT-037: Hooks MUST be called only at the top level of components or hooks. [S62]
-- RCT-038: Prefer composition over inheritance, HOCs, or config-driven rendering systems. [S31][S49]
-- RCT-039: Avoid boolean matrices (e.g., `primary secondary ghost`); prefer a `variant` or `tone` prop with a constrained union. [S31][S49]
-- RCT-040: Prefer `children` only when arbitrary composition is required. [S31][S49]
-- RCT-041: Prefer semantic prop names over `data`, `item`, `config`, `payload`. [S31][S49]
-- RCT-042: Pass `ref` as a prop in React 19+ instead of using `forwardRef`. [S15][S16][S58]
-- RCT-043: Use `useImperativeHandle` ONLY for imperative contracts (focus, scroll, measure). [S15][S16][S58]
-- RCT-044: MUST NOT use refs as state for render-driving values. [S15][S16][S58]
-- RCT-045: `Children` and `cloneElement` are reserved ONLY for low-level infrastructure code. [S17][S18][S48]
-- RCT-046: App code SHOULD prefer explicit props, slots, or `asChild` composition over element cloning. [S17][S18][S48]
-- RCT-047: Put state in the nearest component that needs to own it. [S22][S23]
-- RCT-048: MUST NOT store derived values that can be derived from props or other state. [S22][S7]
-- RCT-049: Update arrays and objects in state immutably. [S22][S7]
-- RCT-050: Multi-step UI flows MUST use a reducer or an explicit discriminated union state machine. [S24]
-- RCT-051: Async UI MUST use a single explicit status field (e.g., "idle", "submitting", "success", "error"). [S24]
-- RCT-052: MUST NOT represent async state with contradictory booleans like `isLoading` and `isSaving`. [S24]
-- RCT-053: Dialogs, wizards, and optimistic mutations MUST have explicit states and transitions. [S24]
-- RCT-054: Use context for stable shared values (theme, auth, locale, flags). [S11]
-- RCT-055: MUST NOT use a single context for rapidly changing data consumed by large subtrees. [S11]
-- RCT-056: External stores MUST expose subscribe/getSnapshot and integrate via `useSyncExternalStore`. [S11]
-- RCT-057: Use `key` resets intentionally to recreate a component's local state from scratch. [S20][S21]
-- RCT-058: MUST NOT use an effect to reset state when a prop changes; use a `key` reset instead. [S20][S21]
-- RCT-059: `useEffect` is allowed ONLY for synchronization with external systems (DOM, timers, browser events, subscriptions). [S8][S9][S10][S26]
-- RCT-060: User-driven logic MUST be in event handlers, not effects. [S8][S9]
-- RCT-061: Pure derivations MUST be in render, not effects. [S8][S9]
-- RCT-062: Use `useEffectEvent` when an effect needs latest props/state without resubscribing. [S10][S5]
-- RCT-063: MUST NOT suppress effect dependencies; design around `exhaustive-deps`. [S10][S5]
+# React Architecture & Best Practices
+
+## 1. Core & Architecture
+- **React 19+ Semantics**: Target React 19.2 and React Compiler compatibility. Rely on the compiler instead of manual memoization (`useMemo`, `useCallback`). Use `StrictMode` in development.
+- **Modern Tooling**: Use modern frameworks (Next, Remix, Vite) over Create React App.
+- **UI Stack**: Treat `shadcn/ui` as owned source code. Assume a Tailwind v4 + CSS variable theming stack. Prefer native HTML semantics over custom role-based widgets. Avoid stacking multiple third-party UI kits.
+- **Code Sharing**: Stay single-package until bundle isolation or independent release cycles are strictly required. Extract cross-app reusable primitives to an internal package or registry rather than hand-copying them.
+
+## 2. Component Design
+- **Function Components Only**: Never use class components.
+- **Purity**: Components and hooks must be strictly pure and idempotent. Do not mutate props, state, or captured objects during render. No side effects in render.
+- **Composition > Configuration**: Prefer explicit props, slots, `asChild`, and `children` over inheritance, HOCs, or massive configuration objects. Avoid `cloneElement` and `Children` outside of low-level infrastructure.
+- **Prop Semantics**: Avoid boolean matrices for styles; use constrained union props (e.g., `variant`, `tone`). Use semantic prop names instead of generic ones like `data` or `config`.
+- **Modern Refs**: Pass `ref` as a standard prop (React 19+). Do not use `forwardRef`. Use `useImperativeHandle` strictly for imperative contracts (focus, scroll, measure). Never use refs for render-driving state.
+
+## 3. State Management
+- **Local First**: Default to local state. Escalate to global stores only when local state is proven insufficient.
+- **No Derived State**: Derive values from props or existing state during render instead of syncing them into state variables.
+- **Immutability**: Always update arrays and objects immutably.
+- **Explicit State Machines**: Use reducers or discriminated unions for multi-step flows and async UI. Use a single `status` field (`idle`, `loading`, `success`, `error`) instead of contradictory booleans (`isLoading`, `isSaving`).
+- **State Resets**: Change a component's `key` prop to completely reset its state. Never use an effect to reset state when props change.
+- **Context & Stores**: Use Context only for stable, globally shared values (auth, theme, locale). For rapidly changing external data, use `useSyncExternalStore`.
+
+## 4. Effects (`useEffect`)
+- **Strict Limits**: Use `useEffect` ONLY for synchronizing with external systems (DOM APIs, timers, third-party subscriptions).
+- **No Logic in Effects**: Move user-driven logic to event handlers. Move pure data transformations to render. Do not use effects for data flow.
+- **No Dependency Suppression**: Never disable `exhaustive-deps`. Design around the linter. Use `useEffectEvent` to read the latest state/props without triggering an effect re-run.
+
+## 5. Directory Structure & Boundaries
+- **`components/ui/`**: Low-level, generic primitives (shadcn, wrappers). Must not contain domain logic, network knowledge, or import from feature modules.
+- **`features/<domain>/`**: Domain-specific UI and state. Must not import from other features' internals. Do not hide network/storage work inside leaf components.
+- **`lib/` & `services/`**: Pure boundary code (HTTP, storage, auth, formatters).
+- **`app/` & `routes/`**: Top-level modules that compose features and host route-level boundaries.
+- **No Junk Drawers**: Never use "common", "misc", or "shared" folders for mixed concerns. Move shared code upward only if used by multiple call sites and it remains conceptually general.
+- **Server/Client Isolation**: Server-only and client-only code must not share files unless explicitly supported by the framework.

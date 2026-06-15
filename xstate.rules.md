@@ -2,32 +2,30 @@
 trigger: always_on
 ---
 
-- XST-001: ALWAYS model behavior with states, not status flags.
-- XST-002: ALWAYS use guards for conditions; NEVER use if/else logic in actions.
-- XST-003: ALWAYS use `dot.case` event naming (e.g., 'user.clicked', 'data.loaded').
-- XST-004: ALWAYS pass actor refs explicitly via input; NEVER use `sendParent()`.
-- XST-005: ALWAYS use `systemId` for gossip/broadcast patterns.
-- XST-006: ALWAYS decompose by bounded responsibility.
-- XST-007: ALWAYS use dot.case format for all event names (e.g., 'form.submit', 'timer.tick').
-- XST-008: ALWAYS use wildcards for event groups (e.g., 'user.*').
-- XST-009: NEVER use conditionals in actions; ALWAYS use guarded transitions.
-- XST-010: ALWAYS keep guards pure. Side effects (logging, I/O) MUST be moved to actions.
-- XST-011: NEVER use `sendParent()`; ALWAYS pass actor refs explicitly via input.
-- XST-012: ALWAYS pass all needed actor refs (coordinator, logger, siblings) via input for decoupled communication.
-- XST-013: ALWAYS use `systemId` for global event broadcasting and gossip patterns.
-- XST-014: ALWAYS use an event bus for pub-sub patterns implemented via shared `systemId`.
-- XST-015: ALWAYS use `invoke` when an actor's lifecycle is tied to a specific state.
-- XST-016: ALWAYS use `spawn` for dynamic or multiple actors requiring manual lifecycle control.
-- XST-017: ALWAYS create separate actors for independent concerns; NEVER create God machines with multiple responsibilities.
-- XST-018: ALWAYS use parallel states for independent concurrent concerns within a single machine.
-- XST-019: ALWAYS model asynchronous operations (Request-Response) as discrete states: idle, loading, success, and error.
-- XST-020: ALWAYS use context for stateful metadata like retry attempts and backoff counters.
-- XST-021: ALWAYS use `reenter: true` on transitions to reset timers for debouncing patterns.
-- XST-022: ALWAYS use hierarchical (parent) states to avoid repeating shared transitions (e.g., global logout or offline events).
-- XST-023: ALWAYS keep context minimal; store only essential identifiers and metadata, not full domain objects or UI state.
-- XST-024: NEVER mutate context directly; ALWAYS use `assign()`.
-- XST-025: ALWAYS organize action implementations in the `setup()` function.
-- XST-026: ALWAYS use `enqueueActions` for complex action sequences requiring conditional scheduling or multiple mutations.
-- XST-027: NEVER put if/else logic in actions; use guards and multiple transitions instead.
-- XST-028: NEVER use boolean flags in context as a substitute for explicit state modeling.
-- XST-029: NEVER use commands (verbs) as event names (e.g., 'setLoading'); ALWAYS use semantic events ('data.loaded').
+# XState Rules
+
+## 1. Architecture & Modeling
+1. **Use Explicit States:** Model behavior with states. Never use boolean status flags in context.
+2. **Decompose by Concern:** Avoid monolithic "God machines." Create separate actors for independent logic.
+3. **Hierarchy & Concurrency:** Use hierarchical (parent) states to deduplicate shared transitions (e.g., global error/logout) and parallel states for concurrent concerns.
+4. **Model Async Explicitly:** Represent request lifecycles as discrete states (`idle`, `loading`, `success`, `error`).
+
+## 2. Events
+1. **Semantic Naming:** Use `dot.case` for events representing occurrences (e.g., `data.loaded`, `form.submit`). Never use command verbs (e.g., `setLoading`).
+2. **Event Groups:** Use wildcards (e.g., `user.*`) to handle grouped events.
+
+## 3. Context & Actions
+1. **Keep Context Minimal:** Store only essential identifiers and metadata (e.g., retry counters). Do not store full domain objects or UI state.
+2. **Immutable Context:** Never mutate context directly; always use `assign()`.
+3. **Action Placement:** Implement actions within the `setup()` function.
+4. **Complex Mutations:** Use `enqueueActions` for sequences requiring multiple mutations or conditional scheduling.
+
+## 4. Guards & Transitions
+1. **No Logic in Actions:** Never use `if/else` inside actions. Always route logic via guarded transitions.
+2. **Pure Guards:** Guards must be strictly pure. Move all side-effects (e.g., logging, I/O) to actions.
+3. **Debouncing:** Use `reenter: true` on transitions to reset timers for debounce patterns.
+
+## 5. Actors & Communication
+1. **Pass Actor Refs via Input:** Never use `sendParent()`. Pass necessary actor references (e.g., coordinator, siblings) explicitly via `input`.
+2. **Global Pub-Sub:** Use `systemId` to implement global broadcast, event bus, or gossip patterns.
+3. **Manage Lifecycles:** Use `invoke` when an actor is strictly tied to a specific state. Use `spawn` for dynamic actors requiring manual lifecycle control.

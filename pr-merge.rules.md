@@ -1,6 +1,6 @@
 # PR Merge Rules
 
-- PR-MERGE-001: Before merging any PR, run `scripts/quality_gate.sh` from the repository root and require a green result.
-- PR-MERGE-002: Do not merge a PR based on targeted tests, Bugbot, review status, or mergeable state alone. Those signals can inform review, but they never replace the root quality gate.
-- PR-MERGE-003: If `scripts/quality_gate.sh` fails, do not merge. Capture the failure summary, then delegate fixes or report the blocker with the failing gate evidence.
-- PR-MERGE-004: Do not add `scripts/quality_gate.sh` as a PR CI requirement unless the user explicitly approves it; the gate is intentionally too heavy for automatic CI.
+1. **Mandatory Quality Gate**: Run `scripts/quality_gate.sh` from the repository root before merging any PR. A green result is strictly required.
+2. **Supplemental Signals Are Insufficient**: Never merge based solely on targeted tests, bot approvals, review status, or GitHub mergeability state. The quality gate is the only source of truth.
+3. **Handle Failures**: If the gate fails, halt the merge. Capture the failure summary and report the blocker or delegate fixes.
+4. **No Automated CI Integration**: Do not add the quality gate to PR CI unless explicitly requested by the user. It is deliberately too heavy for automatic execution.
