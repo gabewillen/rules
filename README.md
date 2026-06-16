@@ -37,6 +37,7 @@ Framework and tooling rules:
 - [pulumi.rules.md](pulumi.rules.md)
 - [react.rules.md](react.rules.md)
 - [sml.rules.md](sml.rules.md)
+- [webcomponents.rules.md](webcomponents.rules.md)
 - [xstate.rules.md](xstate.rules.md)
 
 ## Writing Rules
