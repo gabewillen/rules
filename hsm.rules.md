@@ -1,10 +1,11 @@
-# HSM-BASE-001 MUST Apply Go And HSM Pattern Rules
+# HSM-BASE-001 MUST Apply Host-Language And HSM Pattern Rules
 
 See:
-- [GO-CONC-001](go.rules.md#go-conc-001-must-own-goroutines)
 - [PAT-HSM-001](patterns.rules.md#pat-hsm-001-must-explicit-hierarchical-state-modeling)
 
-Go HSM code MUST comply with Go rules and hierarchical state machine pattern rules.
+HSM code MUST comply with the relevant host-language rules and hierarchical state machine pattern rules.
+
+Host-language aliases MUST map directly to canonical HSM semantics and MUST NOT introduce separate behavior.
 
 # HSM-INIT-001 MUST Define Initial Transitions
 
@@ -40,6 +41,46 @@ Every HSM transition MUST have an explicit trigger where the HSM API requires tr
 
 String wildcards and implicit completion progression are forbidden unless modeled by the framework as explicit events.
 
+# HSM-SCHEMA-001 MUST Define Event Payload Contracts
+
+See:
+- [PAT-EVENT-001](patterns.rules.md#pat-event-001-must-typed-event-boundaries)
+- [CORE-API-001](core.rules.md#core-api-001-must-explicit-api-contracts)
+
+Events with payloads MUST declare typed, validated payload contracts.
+
+Event payload contracts MUST describe the actual event payload, not an incidental wrapper around it.
+
+# HSM-EVENT-002 MUST Treat Events As The Boundary Contract
+
+See:
+- [PAT-EVENT-001](patterns.rules.md#pat-event-001-must-typed-event-boundaries)
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+The event accepted or emitted by a machine is the boundary contract.
+
+Secondary wrapper contracts, duplicate operation names, and parallel schema registries are forbidden unless that extra object is itself a domain event.
+
+# HSM-COMPLETION-001 MUST Carry Transient Results In Events
+
+See:
+- [PAT-ASYNC-001](patterns.rules.md#pat-async-001-must-async-work-return-events)
+- [PAT-RTC-001](patterns.rules.md#pat-rtc-001-must-run-to-completion-dispatch)
+
+Short-lived results, classifications, parse outputs, lookup results, activity outputs, and failures MUST move through typed completion or error events.
+
+Machine instance fields, extended state, and caller context values MUST NOT store transient phase data solely to bridge one step to another.
+
+# HSM-CORRELATION-001 MUST Correlate Delayed Results Before Effects
+
+See:
+- [PAT-ASYNC-001](patterns.rules.md#pat-async-001-must-async-work-return-events)
+- [CORE-STATE-001](core.rules.md#core-state-001-must-single-source-of-truth)
+
+Delayed callbacks, activity completions, external observations, and async results MUST be correlated with the active operation before effects mutate state.
+
+Stale, duplicate, or out-of-order results MUST be ignored, rejected, deferred, or routed explicitly.
+
 # HSM-CHOICE-001 MUST Model Conditional Branching With Choices
 
 See:
@@ -67,6 +108,16 @@ Durable machine data MUST be owned by the machine instance, declared attributes,
 
 Caller context values MUST NOT store durable machine state.
 
+# HSM-OWNERSHIP-001 MUST Preserve Instance State Ownership
+
+See:
+- [CORE-MEM-001](core.rules.md#core-mem-001-must-explicit-ownership)
+- [PAT-ACTOR-001](patterns.rules.md#pat-actor-001-must-actor-state-ownership)
+
+Behavior callbacks MUST mutate machine-private state only through the owning machine's behavior methods, declared attributes, or explicit runtime data structures.
+
+Helpers MAY guard, adapt, or publish, but MUST NOT reach around ownership boundaries to mutate another object or machine's private state.
+
 # HSM-OBS-001 MUST Observe Through Snapshots
 
 See:
@@ -75,6 +126,18 @@ See:
 External code MUST observe HSM state through snapshots or subscriptions.
 
 External code MUST NOT use observed transient states to manually drive internal progression.
+
+# HSM-OPERATIONS-001 MUST Derive Callable Operations From Events
+
+See:
+- [PAT-EVENT-001](patterns.rules.md#pat-event-001-must-typed-event-boundaries)
+- [CORE-API-001](core.rules.md#core-api-001-must-explicit-api-contracts)
+
+When HSM events are exposed as callable operations, the canonical event MUST remain the source of truth.
+
+Operation aliases MUST be deterministic and collision-checked.
+
+Completion, error, internal lifecycle, and private bookkeeping events MUST NOT become callable operations by default.
 
 # HSM-TIME-001 MUST Model Time Explicitly
 
@@ -108,3 +171,13 @@ Callers MUST use cancellation-aware waits when waiting.
 Catch-all transitions SHOULD be lowest priority.
 
 Catch-all transitions MUST NOT accidentally consume internal lifecycle events.
+
+# HSM-TEST-001 MUST Verify Runtime Semantics
+
+See:
+- [CORE-TEST-001](core.rules.md#core-test-001-must-deterministic-tests)
+- [PAT-RTC-001](patterns.rules.md#pat-rtc-001-must-run-to-completion-dispatch)
+
+Tests MUST exercise runtime behavior for completion, failure, timeout, stale-event, deferred-event, and observer paths when those semantics matter.
+
+Static topology assertions alone are insufficient for behavior claims.
